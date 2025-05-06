@@ -108,8 +108,6 @@ function PartyDetails() {
     .map((rsvp) => guestList.find((guest) => guest.id === rsvp.guestId))
     .filter(Boolean);
 
-  console.log(rsvpList);
-
   $party.innerHTML = `
   <h3>${selectedParty.name} #${selectedParty.id}</h3>
   <p>${new Date(selectedParty.date)}</p>
