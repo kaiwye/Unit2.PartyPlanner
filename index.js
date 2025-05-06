@@ -13,25 +13,35 @@ const RSVPs =
 let parties = [];
 let selectedParty = null;
 let selectedPartyId = null;
+let guestList = [];
+let rsvpList = [];
 
 async function getParties() {
   try {
     const response = await fetch(API);
     const result = await response.json();
     parties = result.data;
-    render();
   } catch (err) {
     console.error(err);
   }
 }
 
 // === Guests and RSVPs ===
-async function getData(data) {
+async function getGuestList() {
   try {
-    const response = await fetch(data);
+    const response = await fetch(Guests);
     const result = await response.json();
     guestList = result.data;
-    render();
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+async function getRsvpList() {
+  try {
+    const response = await fetch(RSVPs);
+    const result = await response.json();
+    rsvpList = result.data;
   } catch (err) {
     console.error(err);
   }
@@ -64,6 +74,7 @@ function PartyListItem(party) {
   return $li;
 }
 
+// === Bold Selected ===
 function boldSelected(party) {
   if (party) {
     const changeText = document.querySelector("#selected");
@@ -89,11 +100,23 @@ function PartyDetails() {
   }
   const $party = document.createElement("section");
   $party.classList.add("party");
+
+  const partyRsvps = rsvpList.filter(
+    (rsvp) => rsvp.partyId === selectedParty.id
+  );
+  const rsvpGuests = partyRsvps
+    .map((rsvp) => guestList.find((guest) => guest.id === rsvp.guestId))
+    .filter(Boolean);
+
+  console.log(rsvpList);
+
   $party.innerHTML = `
   <h3>${selectedParty.name} #${selectedParty.id}</h3>
   <p>${new Date(selectedParty.date)}</p>
   <p>${selectedParty.location}</p>
   <p>${selectedParty.description}</p>
+  <h3>Guests Who RSVPed: </h3>
+  <p>${rsvpGuests.map((guest) => guest.name).join(", ") || "None :("}</p>
   `;
   return $party;
 }
@@ -119,9 +142,9 @@ function render() {
 }
 
 async function init() {
-  await getParties(API);
-  await getData(Guests);
-  await getData(RSVPs);
+  await getParties();
+  await getGuestList();
+  await getRsvpList();
   render();
 }
 
