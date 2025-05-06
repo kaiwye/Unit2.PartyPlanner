@@ -11,8 +11,8 @@ const RSVPs =
 // === State ===
 
 let parties = [];
-let selectedParty = null;
-let selectedPartyId = null;
+let selectedParty;
+let selectedPartyId;
 let guestList = [];
 let rsvpList = [];
 
@@ -21,6 +21,7 @@ async function getParties() {
     const response = await fetch(API);
     const result = await response.json();
     parties = result.data;
+    return parties;
   } catch (err) {
     console.error(err);
   }
@@ -32,6 +33,7 @@ async function getGuestList() {
     const response = await fetch(Guests);
     const result = await response.json();
     guestList = result.data;
+    return guestList;
   } catch (err) {
     console.error(err);
   }
@@ -42,6 +44,7 @@ async function getRsvpList() {
     const response = await fetch(RSVPs);
     const result = await response.json();
     rsvpList = result.data;
+    return rsvpList;
   } catch (err) {
     console.error(err);
   }
@@ -102,7 +105,7 @@ function PartyDetails() {
   $party.classList.add("party");
 
   const partyRsvps = rsvpList.filter(
-    (rsvp) => rsvp.partyId === selectedParty.id
+    (rsvp) => rsvp.eventId === selectedParty.id
   );
   const rsvpGuests = partyRsvps
     .map((rsvp) => guestList.find((guest) => guest.id === rsvp.guestId))
@@ -114,10 +117,19 @@ function PartyDetails() {
   <p>${selectedParty.location}</p>
   <p>${selectedParty.description}</p>
   <h3>Guests Who RSVPed: </h3>
-  <p>${rsvpGuests.map((guest) => guest.name).join(", ") || "None :("}</p>
-  `;
+  ${
+    rsvpGuests.length
+      ? `<ul>${rsvpGuests
+          .map((guest) => `<li>${guest.name}</li>`)
+          .join("")}</ul>`
+      : "<p>None :(</p>"
+  }`;
   return $party;
 }
+/**
+ * Gives the list of RSVPs in a string format
+<p>${rsvpGuests.map((guest) => guest.name).join(", ") || "None :("}</p>
+*/
 
 // === Render ===
 function render() {
@@ -143,7 +155,12 @@ async function init() {
   await getParties();
   await getGuestList();
   await getRsvpList();
-  render();
+
+  if (parties.length > 0) {
+    await getParty(parties[0].id);
+  } else {
+    render();
+  }
 }
 
 init();

@@ -49,6 +49,10 @@ section {
   padding-left: 0;
 }
 
+ul {
+  list-style: none;
+}
+
 @media (width > 600px) {
   main {
     grid-template-columns: 1fr 1fr;
