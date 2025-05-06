@@ -11,7 +11,8 @@ const RSVPs =
 // === State ===
 
 let parties = [];
-let selectedParty;
+let selectedParty = null;
+let selectedPartyId = null;
 
 async function getParties() {
   try {
@@ -41,6 +42,7 @@ async function getParty(id) {
     const response = await fetch(`${API}/${id}`);
     const result = await response.json();
     selectedParty = result.data;
+    selectedPartyId = id;
     render();
   } catch (err) {
     console.error(err);
@@ -53,8 +55,20 @@ function PartyListItem(party) {
   $li.innerHTML = `
     <a href="#selected">${party.name}</a>
     `;
+  const $link = $li.querySelector("a");
+  if (party.id === selectedPartyId) {
+    $link.style.fontWeight = "bold";
+    $link.style.fontStyle = "italic";
+  }
   $li.addEventListener("click", () => getParty(party.id));
   return $li;
+}
+
+function boldSelected(party) {
+  if (party) {
+    const changeText = document.querySelector("#selected");
+    changeText.innerHTML = `<b>${party.name}</b>`;
+  }
 }
 
 function PartyList() {
